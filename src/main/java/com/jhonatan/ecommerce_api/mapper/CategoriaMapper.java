@@ -22,4 +22,9 @@ public class CategoriaMapper {
                 categoria.getDescricao()
         );
     }
+
+    public void updateEntity(CategoriaRequestDTO dto, Categoria entity) {
+        entity.setNome(dto.nome());
+        entity.setDescricao(dto.descricao());
+    }
 }

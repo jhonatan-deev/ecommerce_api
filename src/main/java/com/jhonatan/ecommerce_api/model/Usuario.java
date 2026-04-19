@@ -7,16 +7,16 @@ import jakarta.persistence.*;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(nullable = false)
-    String nome;
+    private String nome;
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
     @Column(nullable = false)
-    String senha;
+    private String senha;
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipo;
-    Boolean ativo = true;
+    private Boolean ativo = true;
 
 
     public Usuario(String nome, String email, String senha, TipoUsuario tipo, Boolean ativo) {
