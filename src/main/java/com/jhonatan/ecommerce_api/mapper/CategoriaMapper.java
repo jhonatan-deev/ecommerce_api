@@ -1,7 +1,7 @@
 package com.jhonatan.ecommerce_api.mapper;
 
-import com.jhonatan.ecommerce_api.dto.CategoriaRequestDTO;
-import com.jhonatan.ecommerce_api.dto.CategoriaResponseDTO;
+import com.jhonatan.ecommerce_api.dto.categoria.CategoriaRequestDTO;
+import com.jhonatan.ecommerce_api.dto.categoria.CategoriaResponseDTO;
 import com.jhonatan.ecommerce_api.model.Categoria;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package com.jhonatan.ecommerce_api.controller;
 
-import com.jhonatan.ecommerce_api.dto.CategoriaRequestDTO;
-import com.jhonatan.ecommerce_api.dto.CategoriaResponseDTO;
+import com.jhonatan.ecommerce_api.dto.categoria.CategoriaRequestDTO;
+import com.jhonatan.ecommerce_api.dto.categoria.CategoriaResponseDTO;
 import com.jhonatan.ecommerce_api.service.CategoriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

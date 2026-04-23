@@ -1,4 +1,4 @@
-package com.jhonatan.ecommerce_api.dto;
+package com.jhonatan.ecommerce_api.dto.categoria;
 
 import jakarta.validation.constraints.NotBlank;
 
