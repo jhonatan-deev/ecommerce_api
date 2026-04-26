@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/produtos")
+@RequestMapping("/products")
 public class ProdutoController {
         private final ProdutoService produtoService;
 
@@ -21,33 +21,33 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(@RequestBody ProdutoRequestDTO produtoRequestDTO){
+    public ResponseEntity<ProdutoResponseDTO> createProduct(@RequestBody ProdutoRequestDTO produtoRequestDTO){
         ProdutoResponseDTO produto = produtoService.create(produtoRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(produto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@RequestBody @Valid ProdutoRequestDTO produtoRequestDTO,
+    public ResponseEntity<ProdutoResponseDTO> updateProduct(@RequestBody @Valid ProdutoRequestDTO produtoRequestDTO,
                                                                @PathVariable Long id){
         ProdutoResponseDTO produto = produtoService.atualizarProduto(id, produtoRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(produto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> deletarProduto(@PathVariable Long id){
+    public ResponseEntity<ProdutoResponseDTO> deleteProduct(@PathVariable Long id){
         produtoService.deleteProduto(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
     @GetMapping
-    public ResponseEntity<List<ProdutoResponseDTO>> listaProdutos(){
+    public ResponseEntity<List<ProdutoResponseDTO>> listProducts(){
         List<ProdutoResponseDTO> produtosDTO = produtoService.listarProdutos();
         return ResponseEntity.ok(produtosDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> buscarProdutoPorId(Long id){
+    public ResponseEntity<ProdutoResponseDTO> getProductById(@PathVariable Long id){
         ProdutoResponseDTO produto = produtoService.buscarProdutoPorId(id);
         return ResponseEntity.ok(produto);
     }
