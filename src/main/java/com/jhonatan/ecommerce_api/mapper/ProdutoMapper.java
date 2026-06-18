@@ -16,6 +16,7 @@ public class ProdutoMapper {
         produto.setQuantidadeDeEstoque(dto.estoque());
         return produto;
     }
+
     public ProdutoResponseDTO toDTO(Produto produto){
         return new ProdutoResponseDTO(
                 produto.getId(),

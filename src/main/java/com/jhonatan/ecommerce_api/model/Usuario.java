@@ -14,6 +14,7 @@ public class Usuario {
     private String email;
     @Column(nullable = false)
     private String senha;
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipo;
     private Boolean ativo = true;
