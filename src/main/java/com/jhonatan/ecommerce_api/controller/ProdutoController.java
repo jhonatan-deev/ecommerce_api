@@ -35,11 +35,11 @@ public class ProdutoController {
         return ResponseEntity.status(HttpStatus.OK).body(produto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> deleteProduct(@PathVariable Long id){
-        produtoService.deleteProduto(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<ProdutoResponseDTO> deleteProduct(@PathVariable Long id){
+//        produtoService.deleteProduto(id);
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+//    }
 
 
     @GetMapping
