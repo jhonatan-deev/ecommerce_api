@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 public class CategoriaMapper {
 
     public Categoria toEntity(CategoriaRequestDTO dto) {
-        Categoria categoria = new Categoria();
-        categoria.setNome(dto.nome());
-        categoria.setDescricao(dto.descricao());
-        return categoria;
+        return new Categoria(
+                dto.nome(),
+                dto.descricao()
+        );
     }
 
     public CategoriaResponseDTO toDTO(Categoria categoria) {
@@ -24,7 +24,7 @@ public class CategoriaMapper {
     }
 
     public void updateEntity(CategoriaRequestDTO dto, Categoria entity) {
-        entity.setNome(dto.nome());
-        entity.setDescricao(dto.descricao());
+        entity.alterarNome(dto.nome());
+        entity.alterarDescricao(dto.descricao());
     }
 }

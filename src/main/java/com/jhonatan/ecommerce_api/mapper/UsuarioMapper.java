@@ -8,14 +8,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UsuarioMapper {
-
     public Usuario toEntity(UsuarioRequestDTO dto) {
-        Usuario usuario = new Usuario();
-        usuario.setNome(dto.nome());
-        usuario.setEmail(dto.email());
-        usuario.setSenha(dto.senha());
-        usuario.setTipo(dto.tipo());
-        return usuario;
+        return new Usuario(
+                dto.nome(),
+                dto.email(),
+                dto.senha(),
+                dto.tipo()
+        );
     }
 
     public UsuarioResponseDTO toDTO(Usuario usuario) {
@@ -23,26 +22,23 @@ public class UsuarioMapper {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getTipo()
+                usuario.getTipo(),
+                usuario.getAtivo()
         );
     }
 
     public void updateEntity(UsuarioUpdateDTO dto, Usuario entity) {
 
         if (dto.nome() != null) {
-            entity.setNome(dto.nome());
-        }
-
-        if (dto.email() != null) {
-            entity.setEmail(dto.email());
+            entity.alterarNome(dto.nome());
         }
 
         if (dto.senha() != null) {
-            entity.setSenha(dto.senha());
+            entity.alterarSenha(dto.senha());
         }
 
         if (dto.tipo() != null) {
-            entity.setTipo(dto.tipo());
+            entity.alterarTipo(dto.tipo());
         }
     }
 }

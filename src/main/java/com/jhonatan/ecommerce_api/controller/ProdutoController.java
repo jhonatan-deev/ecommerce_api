@@ -1,7 +1,9 @@
 package com.jhonatan.ecommerce_api.controller;
 
+import com.jhonatan.ecommerce_api.dto.categoria.CategoriaRequestDTO;
 import com.jhonatan.ecommerce_api.dto.produto.ProdutoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.produto.ProdutoResponseDTO;
+import com.jhonatan.ecommerce_api.dto.produto.ProdutoUpdateDTO;
 import com.jhonatan.ecommerce_api.model.Produto;
 import com.jhonatan.ecommerce_api.service.ProdutoService;
 import jakarta.validation.Valid;
@@ -27,9 +29,9 @@ public class ProdutoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> updateProduct(@RequestBody @Valid ProdutoRequestDTO produtoRequestDTO,
+    public ResponseEntity<ProdutoResponseDTO> updateProduct(@RequestBody @Valid ProdutoUpdateDTO produtoUpdateDTO,
                                                                @PathVariable Long id){
-        ProdutoResponseDTO produto = produtoService.atualizarProduto(id, produtoRequestDTO);
+        ProdutoResponseDTO produto = produtoService.atualizarProduto(id, produtoUpdateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(produto);
     }
 
