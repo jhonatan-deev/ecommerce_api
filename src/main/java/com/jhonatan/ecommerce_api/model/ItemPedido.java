@@ -1,22 +1,27 @@
 package com.jhonatan.ecommerce_api.model;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "itens_pedido")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemPedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
@@ -27,32 +32,65 @@ public class ItemPedido {
     private BigDecimal precoUnitario;
 
     public ItemPedido(Produto produto, Integer quantidade, BigDecimal precoUnitario) {
+
+        validarProduto(produto);
+        validarQuantidade(quantidade);
+        validarPreco(precoUnitario);
+
         this.produto = produto;
         this.quantidade = quantidade;
         this.precoUnitario = precoUnitario;
     }
 
-    public ItemPedido() {}
+    public void aumentarQuantidade(int valor) {
+        validarQuantidade(valor);
+        this.quantidade += valor;
+    }
 
-    public Long getId() { return id; }
+    public void diminuirQuantidade(int valor) {
+        validarQuantidade(valor);
 
-    public Pedido getPedido() { return pedido; }
+        int novaQuantidade = this.quantidade - valor;
 
-    public Produto getProduto() { return produto; }
+        if (novaQuantidade < 1) {
+            throw new IllegalArgumentException(
+                    "Quantidade do item não pode ser menor que 1."
+            );
+        }
 
-    public Integer getQuantidade() { return quantidade; }
-
-    public BigDecimal getPrecoUnitario() { return precoUnitario; }
-
-    public void setPedido(Pedido pedido) { this.pedido = pedido; }
-
-    public void setProduto(Produto produto) { this.produto = produto; }
-
-    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
-
-    public void setPrecoUnitario(BigDecimal precoUnitario) { this.precoUnitario = precoUnitario; }
+        this.quantidade = novaQuantidade;
+    }
 
     public BigDecimal getPrecoTotal() {
         return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+    }
+
+    private void validarProduto(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto é obrigatório.");
+        }
+    }
+
+    private void validarQuantidade(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException(
+                    "Quantidade deve ser maior que zero."
+            );
+        }
+    }
+
+    private void validarPreco(BigDecimal preco) {
+        if (preco == null || preco.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Preço inválido."
+            );
+        }
+    }
+
+    void associarPedido(Pedido pedido) {
+        if (pedido == null) {
+            throw new IllegalArgumentException("Pedido é obrigatório.");
+        }
+        this.pedido = pedido;
     }
 }

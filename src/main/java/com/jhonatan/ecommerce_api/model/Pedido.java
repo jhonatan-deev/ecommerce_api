@@ -1,6 +1,10 @@
 package com.jhonatan.ecommerce_api.model;
-import com.jhonatan.ecommerce_api.enums.StatusDePagamento;
+
+import com.jhonatan.ecommerce_api.enums.StatusPedido;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,66 +12,83 @@ import java.util.List;
 
 @Entity
 @Table(name = "pedidos")
+@Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class Pedido {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
     @Column(nullable = false)
-    private LocalDate data;
+    private LocalDate dataPedido;
+
     @Enumerated(EnumType.STRING)
-    private StatusDePagamento statusDePagamento;
+    @Column(nullable = false)
+    private StatusPedido statusPedido;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotalPedido;
-    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itensDoPedido = new ArrayList<>();
 
-    public void adicionarItem(ItemPedido item) {
-        item.setPedido(this);
-        this.itensDoPedido.add(item);
-    }
-    public Pedido(Usuario usuario, LocalDate data, StatusDePagamento statusDePagamento, BigDecimal valorTotalPedido) {
+    public Pedido(Usuario usuario) {
+        validarUsuario(usuario);
         this.usuario = usuario;
-        this.data = data;
-        this.statusDePagamento = statusDePagamento;
-        this.valorTotalPedido = valorTotalPedido;
-    }
-    public Pedido() {}
-
-    public Long getId() {
-        return id;
+        this.dataPedido = LocalDate.now();
+        this.statusPedido = StatusPedido.PENDENTE;
+        this.valorTotalPedido = BigDecimal.ZERO;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public void adicionarItem(ItemPedido novoItem) {
+        validarItem(novoItem);
+
+        ItemPedido itemExistente = itensDoPedido.stream()
+                .filter(item -> item.getProduto().equals(novoItem.getProduto()))
+                .findFirst()
+                .orElse(null);
+
+        if (itemExistente != null) {
+            itemExistente.aumentarQuantidade(novoItem.getQuantidade());
+        } else {
+            novoItem.associarPedido(this);
+            itensDoPedido.add(novoItem);
+        }
+        recalcularTotal();
     }
 
-    public LocalDate getData() {
-        return data;
+    public void alterarStatus(StatusPedido novoStatus) {
+        validarStatus(novoStatus);
+        this.statusPedido = novoStatus;
     }
 
-    public StatusDePagamento getStatusDePagamento() {
-        return statusDePagamento;
+    public void recalcularTotal() {
+        this.valorTotalPedido = itensDoPedido.stream()
+                .map(ItemPedido::getPrecoTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getValorTotalPedido() {
-        return valorTotalPedido;
+    private void validarUsuario(Usuario usuario) {
+        if (usuario == null) {
+            throw new IllegalArgumentException("Usuário não pode ser nulo.");
+        }
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    private void validarItem(ItemPedido item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item não pode ser nulo.");
+        }
     }
 
-    public void setData(LocalDate data) {
-        this.data = data;
+    private void validarStatus(StatusPedido status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Status não pode ser nulo.");
+        }
     }
 
-    public void setStatusDePagamento(StatusDePagamento statusDePagamento) {
-        this.statusDePagamento = statusDePagamento;
-    }
-
-    public void setValorTotalPedido(BigDecimal valorTotalPedido) {
-        this.valorTotalPedido = valorTotalPedido;
-    }
 }

@@ -3,6 +3,7 @@ package com.jhonatan.ecommerce_api.dto.produto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
@@ -15,7 +16,8 @@ public record ProdutoRequestDTO(
         @Positive
         BigDecimal preco,
         @NotNull
-        @Positive
-        Integer estoque
+        @PositiveOrZero
+        Integer estoque,
+        Long categoriaId
 ) {
 }

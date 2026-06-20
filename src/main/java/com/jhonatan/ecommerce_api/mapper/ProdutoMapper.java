@@ -2,19 +2,22 @@ package com.jhonatan.ecommerce_api.mapper;
 
 import com.jhonatan.ecommerce_api.dto.produto.ProdutoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.produto.ProdutoResponseDTO;
+import com.jhonatan.ecommerce_api.dto.produto.ProdutoUpdateDTO;
+import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.model.Produto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProdutoMapper {
 
-    public Produto toEntity(ProdutoRequestDTO dto){
-        Produto produto = new Produto();
-        produto.setNome(dto.nome());
-        produto.setDescricao(dto.descricao());
-        produto.setPreco(dto.preco());
-        produto.setQuantidadeDeEstoque(dto.estoque());
-        return produto;
+    public Produto toEntity(ProdutoRequestDTO dto, Categoria categoria) {
+        return new Produto(
+                dto.nome(),
+                dto.descricao(),
+                dto.preco(),
+                dto.estoque(),
+                categoria
+        );
     }
 
     public ProdutoResponseDTO toDTO(Produto produto){
@@ -23,14 +26,22 @@ public class ProdutoMapper {
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getPreco(),
-                produto.getQuantidadeDeEstoque()
+                produto.getEstoque()
         );
     }
 
-    public void updateEntity(ProdutoRequestDTO dto, Produto entity){
-        entity.setNome(dto.nome());
-        entity.setDescricao(dto.descricao());
-        entity.setPreco(dto.preco());
-        entity.setQuantidadeDeEstoque(dto.estoque());
+    public void updateEntity(ProdutoUpdateDTO dto, Produto entity, Categoria categoria) {
+        entity.alterarNome(dto.nome());
+        entity.alterarDescricao(dto.descricao());
+        entity.alterarPreco(dto.preco());
+
+        if (dto.quantidadeEntrada() != null) {
+            entity.entradaEstoque(dto.quantidadeEntrada());
+        }
+
+        if (dto.categoriaId() != null) {
+            // A validação de categoria nula fica dentro de alterarCategoria
+            entity.alterarCategoria(categoria);
+        }
     }
 }

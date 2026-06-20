@@ -6,6 +6,7 @@ public record UsuarioResponseDTO(
         Long id,
         String nome,
         String email,
-        TipoUsuario tipo
+        TipoUsuario tipo,
+        Boolean ativo
 ) {
 }
