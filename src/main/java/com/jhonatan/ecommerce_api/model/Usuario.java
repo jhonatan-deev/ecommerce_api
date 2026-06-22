@@ -1,6 +1,7 @@
 package com.jhonatan.ecommerce_api.model;
 
 import com.jhonatan.ecommerce_api.enums.TipoUsuario;
+import com.jhonatan.ecommerce_api.exception.RegraDeNegocioException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -36,7 +37,7 @@ public class Usuario implements UserDetails {
     private TipoUsuario tipo;
 
     @Column(nullable = false)
-    private Boolean ativo;
+    private boolean ativo;
 
     public Usuario(String nome, String email, String senha, TipoUsuario tipo) {
         validarNome(nome);
