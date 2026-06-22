@@ -3,6 +3,7 @@ package com.jhonatan.ecommerce_api.service;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
+import com.jhonatan.ecommerce_api.exception.EmailAlreadyExistsException;
 import com.jhonatan.ecommerce_api.exception.UsuarioNotFoundException;
 import com.jhonatan.ecommerce_api.mapper.UsuarioMapper;
 import com.jhonatan.ecommerce_api.model.Usuario;
@@ -25,6 +26,9 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+        if(usuarioRepository.existsByEmail(dto.email())){
+            throw new EmailAlreadyExistsException("Email já está cadastrado!");
+        }
         Usuario usuario = usuarioMapper.toEntity(dto);
         usuario = usuarioRepository.save(usuario);
         return usuarioMapper.toDTO(usuario);
@@ -48,6 +52,11 @@ public class UsuarioService {
     public UsuarioResponseDTO updateUser(Long id, UsuarioUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado."));
+
+        if(usuarioRepository.existsByEmailAndIdNot(dto.email(), id)){
+            throw new EmailAlreadyExistsException("Email já está cadastrado!");
+        }
+
         usuarioMapper.updateEntity(dto, usuario);
         return usuarioMapper.toDTO(usuario);
     }
