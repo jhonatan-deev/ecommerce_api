@@ -56,7 +56,6 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(()-> new IdProdutoNotFoundException("Id de usuário não encontrado."));
         produtoMapper.updateEntity(dto, produto, categoriaProduto);
-        produto = produtoRepository.save(produto);
         return produtoMapper.toDTO(produto);
 
     }
