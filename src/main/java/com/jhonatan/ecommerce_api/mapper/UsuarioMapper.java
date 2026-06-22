@@ -23,7 +23,7 @@ public class UsuarioMapper {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getTipo(),
-                usuario.getAtivo()
+                usuario.isAtivo()
         );
     }
 
