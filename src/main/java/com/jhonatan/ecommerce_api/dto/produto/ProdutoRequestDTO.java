@@ -18,6 +18,7 @@ public record ProdutoRequestDTO(
         @NotNull
         @PositiveOrZero
         Integer estoque,
+        @NotNull
         Long categoriaId
 ) {
 }

@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     Page<Usuario> findByAtivoTrue(Pageable pageable);
     Optional<Usuario> findByIdAndAtivoTrue(Long id);
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByEmail(String email);
 }

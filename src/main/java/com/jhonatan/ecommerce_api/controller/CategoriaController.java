@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/v1/categorias")
 public class CategoriaController {
     private final CategoriaService categoriaService;
     public CategoriaController(CategoriaService categoriaService) {
@@ -32,23 +32,23 @@ public class CategoriaController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> createCategory(@RequestBody @Valid CategoriaRequestDTO categoriaRequestDTO){
-            CategoriaResponseDTO categoria = categoriaService.create(categoriaRequestDTO);
+    public ResponseEntity<CategoriaResponseDTO> createCategory(@RequestBody @Valid CategoriaRequestDTO dto){
+            CategoriaResponseDTO categoria = categoriaService.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponseDTO> updateCategory(@PathVariable Long id,
-            @RequestBody @Valid CategoriaRequestDTO categoriaRequestDTO){
-        CategoriaResponseDTO categoria = categoriaService.update(categoriaRequestDTO, id);
+            @RequestBody @Valid CategoriaRequestDTO dto){
+        CategoriaResponseDTO categoria = categoriaService.update(dto, id);
         return ResponseEntity.ok(categoria);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoriaService.deleteCategoria(id);
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+//        categoriaService.deleteCategoria(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
 
 }

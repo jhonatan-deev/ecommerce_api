@@ -1,12 +1,13 @@
 package com.jhonatan.ecommerce_api.model;
 
 import com.jhonatan.ecommerce_api.enums.StatusPedido;
+import com.jhonatan.ecommerce_api.exception.PedidoStatusInvalidoException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class Pedido {
     private Usuario usuario;
 
     @Column(nullable = false)
-    private LocalDate dataPedido;
+    private LocalDateTime dataPedido;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,7 +41,7 @@ public class Pedido {
     public Pedido(Usuario usuario) {
         validarUsuario(usuario);
         this.usuario = usuario;
-        this.dataPedido = LocalDate.now();
+        this.dataPedido = LocalDateTime.now();
         this.statusPedido = StatusPedido.PENDENTE;
         this.valorTotalPedido = BigDecimal.ZERO;
     }
@@ -64,6 +65,13 @@ public class Pedido {
 
     public void alterarStatus(StatusPedido novoStatus) {
         validarStatus(novoStatus);
+        if (!this.statusPedido.podeTransitarPara(novoStatus)) {
+
+            throw new PedidoStatusInvalidoException(String.format(
+                            "Não é permitido alterar o status de %s para %s.",
+                            this.statusPedido,
+                            novoStatus));
+        }
         this.statusPedido = novoStatus;
     }
 

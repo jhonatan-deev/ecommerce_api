@@ -4,6 +4,7 @@ import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
 import com.jhonatan.ecommerce_api.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,13 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> create(@RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> create(@RequestBody @Valid UsuarioRequestDTO dto) {
         UsuarioResponseDTO response = usuarioService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @RequestBody UsuarioUpdateDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UsuarioUpdateDTO dto) {
         UsuarioResponseDTO response = usuarioService.updateUser(id, dto);
         return ResponseEntity.ok(response);
     }
