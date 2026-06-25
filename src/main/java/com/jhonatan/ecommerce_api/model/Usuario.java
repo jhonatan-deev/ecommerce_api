@@ -85,6 +85,9 @@ public class Usuario implements UserDetails {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email não pode ser nulo ou vazio.");
         }
+        if (!email.contains("@") || !email.contains(".")) {
+            throw new IllegalArgumentException("Email inválido.");
+        }
     }
 
     private void validarSenha(String senha) {
