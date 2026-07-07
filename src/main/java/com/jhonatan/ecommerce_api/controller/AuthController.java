@@ -1,13 +1,13 @@
 package com.jhonatan.ecommerce_api.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/auth/login")
 public class AuthController {
-    @GetMapping
+    @PostMapping
     public String login() {
         return "login";
     }
