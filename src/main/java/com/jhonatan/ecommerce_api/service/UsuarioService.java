@@ -11,6 +11,7 @@ import com.jhonatan.ecommerce_api.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -18,10 +19,12 @@ import org.springframework.stereotype.Service;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper) {
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -30,6 +33,7 @@ public class UsuarioService {
             throw new EmailAlreadyExistsException("Email já está cadastrado!");
         }
         Usuario usuario = usuarioMapper.toEntity(dto);
+        usuario.alterarSenha(passwordEncoder.encode(dto.senha()));
         usuario = usuarioRepository.save(usuario);
         return usuarioMapper.toDTO(usuario);
     }
