@@ -4,10 +4,15 @@ import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
 import com.jhonatan.ecommerce_api.model.Usuario;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UsuarioMapper {
+    private final PasswordEncoder passwordEncoder;
+    public UsuarioMapper(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
     public Usuario toEntity(UsuarioRequestDTO dto) {
         return new Usuario(
                 dto.nome(),
@@ -34,7 +39,7 @@ public class UsuarioMapper {
         }
 
         if (dto.senha() != null) {
-            entity.alterarSenha(dto.senha());
+            entity.alterarSenha(passwordEncoder.encode(dto.senha()));
         }
 
         if (dto.tipo() != null) {
