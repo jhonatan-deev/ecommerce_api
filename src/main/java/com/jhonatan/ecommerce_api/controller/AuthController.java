@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-
     private final AuthenticationManager authenticationManager;
     private final JwtService tokenService;
 
@@ -24,7 +23,6 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
     }
-
 
     @PostMapping("/login")
     public ResponseEntity efetuarLogin(@RequestBody @Valid LoginRequest loginRequest) {
