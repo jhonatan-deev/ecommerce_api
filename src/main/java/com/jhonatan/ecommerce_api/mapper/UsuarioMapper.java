@@ -13,13 +13,17 @@ public class UsuarioMapper {
     public UsuarioMapper(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
-    public Usuario toEntity(UsuarioRequestDTO dto) {
-        return new Usuario(
+    public Usuario toEntity(UsuarioRequestDTO dto, boolean ativo) {
+        Usuario usuario = new Usuario(
                 dto.nome(),
                 dto.email(),
                 dto.senha(),
                 dto.tipo()
         );
+        if (!ativo) {
+            usuario.inativar();
+        }
+        return usuario;
     }
 
     public UsuarioResponseDTO toDTO(Usuario usuario) {

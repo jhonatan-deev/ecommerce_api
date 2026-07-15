@@ -32,7 +32,7 @@ public class UsuarioService {
         if(usuarioRepository.existsByEmail(dto.email())){
             throw new EmailAlreadyExistsException("Email já está cadastrado!");
         }
-        Usuario usuario = usuarioMapper.toEntity(dto);
+        Usuario usuario = usuarioMapper.toEntity(dto, false);
         usuario.alterarSenha(passwordEncoder.encode(dto.senha()));
         usuario = usuarioRepository.save(usuario);
         return usuarioMapper.toDTO(usuario);
