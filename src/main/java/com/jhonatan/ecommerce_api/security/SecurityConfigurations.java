@@ -29,6 +29,7 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 1. Público — cadastro e login
+                        .requestMatchers(HttpMethod.GET, "/api/v1/auth/confirmar-conta").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()
                         .requestMatchers("/api/v1/auth/login").permitAll()
 

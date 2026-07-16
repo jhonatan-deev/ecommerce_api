@@ -11,6 +11,7 @@ import com.jhonatan.ecommerce_api.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +21,23 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ContaConfirmacaoService contaConfirmacaoService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder, ContaConfirmacaoService contaConfirmacaoService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
+        this.contaConfirmacaoService = contaConfirmacaoService;
     }
 
     @Transactional
     public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
-        if(usuarioRepository.existsByEmail(dto.email())){
+        if (usuarioRepository.existsByEmail(dto.email())) {
             throw new EmailAlreadyExistsException("Email já está cadastrado!");
         }
         Usuario usuario = usuarioMapper.toEntity(dto, false);
-        usuario.alterarSenha(passwordEncoder.encode(dto.senha()));
         usuario = usuarioRepository.save(usuario);
+        contaConfirmacaoService.enviarConfirmacao(usuario);
         return usuarioMapper.toDTO(usuario);
     }
 
