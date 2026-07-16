@@ -18,6 +18,9 @@ public class JwtService {
 
     @Value("${api.security.token.secret}")
     private String secret;
+    @Value("${api.security.token.issuer}")
+    private String secreteIssuer;
+
 
     @PostConstruct
     public void init() {
@@ -30,7 +33,7 @@ public class JwtService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer("EcommerceApi")
+                    .withIssuer(secreteIssuer)
                     .withSubject(usuario.getEmail())
                     .withExpiresAt(dataExpiracao())
                     .withClaim("id", usuario.getId())
@@ -45,7 +48,7 @@ public class JwtService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer("EcommerceApi")
+                    .withIssuer(secreteIssuer)
                     .build()
                     .verify(token)
                     .getSubject();

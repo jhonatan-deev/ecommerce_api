@@ -17,7 +17,7 @@ public class UsuarioMapper {
         Usuario usuario = new Usuario(
                 dto.nome(),
                 dto.email(),
-                dto.senha(),
+                passwordEncoder.encode(dto.senha()),
                 dto.tipo()
         );
         if (!ativo) {
