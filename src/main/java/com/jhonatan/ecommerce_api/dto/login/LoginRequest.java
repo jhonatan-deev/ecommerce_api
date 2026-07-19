@@ -1,4 +1,4 @@
-package com.jhonatan.ecommerce_api.dto;
+package com.jhonatan.ecommerce_api.dto.login;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

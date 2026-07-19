@@ -31,6 +31,15 @@ public class ContaConfirmacaoService {
     }
 
     @Transactional
+    public void reenviarConfirmacao(String email) {
+        usuarioRepository.findByEmailIgnoreCase(email).ifPresent(usuario -> {
+            if (!usuario.isAtivo()) {
+                enviarConfirmacao(usuario);
+            }
+        });
+    }
+
+    @Transactional
     public void confirmarConta(String token) {
         TokenConfirmacaoConta confirmacaoToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new TokenInvalidoException("Token inválido ou inexistente."));

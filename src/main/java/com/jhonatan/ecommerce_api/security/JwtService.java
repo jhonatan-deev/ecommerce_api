@@ -58,7 +58,11 @@ public class JwtService {
     }
 
 
+//    private Instant dataExpiracao() {
+//        return LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC);
+//    }
+
     private Instant dataExpiracao() {
-        return LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC);
+        return LocalDateTime.now().plusMinutes(15).toInstant(ZoneOffset.UTC);
     }
 }
