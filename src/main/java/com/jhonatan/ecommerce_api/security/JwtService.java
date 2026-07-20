@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class JwtService {
@@ -63,6 +64,6 @@ public class JwtService {
 //    }
 
     private Instant dataExpiracao() {
-        return LocalDateTime.now().plusMinutes(15).toInstant(ZoneOffset.UTC);
+        return Instant.now().plus(60, ChronoUnit.MINUTES);
     }
 }

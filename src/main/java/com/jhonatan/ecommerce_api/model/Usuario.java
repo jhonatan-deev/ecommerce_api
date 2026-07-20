@@ -52,6 +52,11 @@ public class Usuario implements UserDetails {
         this.ativo = true;
     }
 
+    public void definirTipo(TipoUsuario tipo) {
+        validarTipo(tipo);
+        this.tipo = tipo;
+    }
+
     public void alterarNome(String novoNome) {
         validarNome(novoNome);
         this.nome = novoNome;

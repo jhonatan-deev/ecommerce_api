@@ -5,7 +5,6 @@ import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 public record UsuarioUpdateDTO(
         String nome,
         String email,
-        String senha,
-        TipoUsuario tipo
+        String senha
 ) {
 }
