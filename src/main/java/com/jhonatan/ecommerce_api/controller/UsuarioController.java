@@ -1,5 +1,6 @@
 package com.jhonatan.ecommerce_api.controller;
 
+import com.jhonatan.ecommerce_api.dto.usuario.AlterarTipoDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
@@ -29,6 +30,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @RequestBody @Valid UsuarioUpdateDTO dto) {
         UsuarioResponseDTO response = usuarioService.updateUser(id, dto);
         return ResponseEntity.ok(response);
@@ -57,5 +59,11 @@ public class UsuarioController {
     public ResponseEntity<Void> activate(@PathVariable Long id) {
         usuarioService.activate(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/tipo")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UsuarioResponseDTO> alterarTipo(@PathVariable Long id, @RequestBody @Valid AlterarTipoDTO dto) {
+        return ResponseEntity.ok(usuarioService.alterarTipo(id, dto.tipo()));
     }
 }

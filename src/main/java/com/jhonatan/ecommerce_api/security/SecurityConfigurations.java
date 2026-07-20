@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfigurations {
     private final SecurityFilter securityFilter;
 
@@ -39,7 +41,7 @@ public class SecurityConfigurations {
                                 "/api/v1/auth/reenviar-confirmacao",
                                 "/api/v1/auth/refresh").permitAll()
 
-                        // 1. Público — vitrine (catálogo)
+                        // 2. Público — vitrine (catálogo)
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos", "/api/v1/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias", "/api/v1/categorias/**").permitAll()
 
@@ -47,6 +49,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/usuarios/*/activate").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/usuarios/*/deactivate").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/usuarios/*/tipo").hasRole("ADMIN")
 
                         // 4. ADMIN ou VENDEDOR — gestão de catálogo
                         .requestMatchers(HttpMethod.POST, "/api/v1/produtos").hasAnyRole("ADMIN", "VENDEDOR")

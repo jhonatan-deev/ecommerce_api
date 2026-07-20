@@ -3,6 +3,7 @@ package com.jhonatan.ecommerce_api.mapper;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
+import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 import com.jhonatan.ecommerce_api.model.Usuario;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,8 @@ public class UsuarioMapper {
                 dto.nome(),
                 dto.email(),
                 passwordEncoder.encode(dto.senha()),
-                dto.tipo()
+                TipoUsuario.CLIENTE
+
         );
         if (!ativo) {
             usuario.inativar();
@@ -44,10 +46,6 @@ public class UsuarioMapper {
 
         if (dto.senha() != null) {
             entity.alterarSenha(passwordEncoder.encode(dto.senha()));
-        }
-
-        if (dto.tipo() != null) {
-            entity.alterarTipo(dto.tipo());
         }
     }
 }

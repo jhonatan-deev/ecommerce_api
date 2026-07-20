@@ -3,6 +3,7 @@ package com.jhonatan.ecommerce_api.service;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioRequestDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioResponseDTO;
 import com.jhonatan.ecommerce_api.dto.usuario.UsuarioUpdateDTO;
+import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 import com.jhonatan.ecommerce_api.exception.EmailAlreadyExistsException;
 import com.jhonatan.ecommerce_api.exception.UsuarioNotFoundException;
 import com.jhonatan.ecommerce_api.mapper.UsuarioMapper;
@@ -11,7 +12,6 @@ import com.jhonatan.ecommerce_api.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -59,11 +59,9 @@ public class UsuarioService {
     public UsuarioResponseDTO updateUser(Long id, UsuarioUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado."));
-
         if(usuarioRepository.existsByEmailAndIdNot(dto.email(), id)){
             throw new EmailAlreadyExistsException("Email já está cadastrado!");
         }
-
         usuarioMapper.updateEntity(dto, usuario);
         return usuarioMapper.toDTO(usuario);
     }
@@ -76,6 +74,15 @@ public class UsuarioService {
 
     public Page<UsuarioResponseDTO> listUsers(Pageable pageable) {
         return usuarioRepository.findByAtivoTrue(pageable).map(usuarioMapper::toDTO);
+    }
+
+    @Transactional
+    public UsuarioResponseDTO alterarTipo(Long id, TipoUsuario novoTipo) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuário não encontrado."));
+        usuario.alterarTipo(novoTipo);
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toDTO(usuario);
     }
 
 
