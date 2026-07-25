@@ -8,6 +8,8 @@ import com.jhonatan.ecommerce_api.mapper.CategoriaMapper;
 import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.repository.CategoriaRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,10 +25,8 @@ public class CategoriaService {
         this.mapper = mapper;
     }
 
-    public List<CategoriaResponseDTO> listarCategorias() {
-        return categoriaRepository.findAll().stream()
-                .map(mapper::toDTO)
-                .toList();
+    public Page<CategoriaResponseDTO> listarCategorias(Pageable pageable) {
+        return categoriaRepository.findAll(pageable).map(mapper::toDTO);
     }
 
     public CategoriaResponseDTO buscarCategoriaPorId(Long id) {

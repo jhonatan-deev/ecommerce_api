@@ -57,7 +57,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/api/v1/categorias").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/categorias/**").hasAnyRole("ADMIN", "VENDEDOR")
 
-                        // 5. Fallback — qualquer coisa não listada acima exige login
+                        // 5. ADMIN ou VENDEDOR — gestão de pedido
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pedidos").hasAnyRole("ADMIN", "VENDEDOR")
+
+                        // 6. Fallback — qualquer coisa não listada acima exige login
                         .anyRequest().authenticated()
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

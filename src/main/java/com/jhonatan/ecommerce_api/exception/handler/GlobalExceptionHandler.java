@@ -4,6 +4,7 @@ import com.jhonatan.ecommerce_api.dto.ErrorResponseDTO;
 import com.jhonatan.ecommerce_api.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,7 +21,8 @@ public class GlobalExceptionHandler {
             EmailNotFoundException.class,
             IdCategoriaNotFoundException.class,
             IdProdutoNotFoundException.class,
-            UsuarioNotFoundException.class
+            UsuarioNotFoundException.class,
+            IdPedidoNotFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFoundException(RuntimeException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -46,7 +48,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             PedidoStatusInvalidoException.class,
-            RegraDeNegocioException.class,
             TokenInvalidoException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleBadRequestException(RuntimeException ex) {
@@ -89,5 +90,25 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(RegraDeNegocioException.class)
+    public ResponseEntity<ErrorResponseDTO> handleForbiddenException(RegraDeNegocioException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponseDTO> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.CONFLICT.value(),
+                "O estoque deste produto foi alterado por outra operação. Tente novamente.",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 }
