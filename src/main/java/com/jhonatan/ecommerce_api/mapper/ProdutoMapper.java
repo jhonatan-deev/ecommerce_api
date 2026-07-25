@@ -9,6 +9,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProdutoMapper {
+    private final CategoriaMapper categoriaMapper;
+
+    public ProdutoMapper(CategoriaMapper categoriaMapper) {
+        this.categoriaMapper = categoriaMapper;
+    }
 
     public Produto toEntity(ProdutoRequestDTO dto, Categoria categoria) {
         return new Produto(
@@ -26,7 +31,8 @@ public class ProdutoMapper {
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getPreco(),
-                produto.getEstoque()
+                produto.getEstoque(),
+                categoriaMapper.toDTO(produto.getCategoria())
         );
     }
 

@@ -11,10 +11,10 @@ import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.model.Produto;
 import com.jhonatan.ecommerce_api.repository.CategoriaRepository;
 import com.jhonatan.ecommerce_api.repository.ProdutoRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -37,25 +37,28 @@ public class ProdutoService {
         return produtoMapper.toDTO(produto);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> listarProdutos(Pageable pageable) {
         return produtoRepository.findAll(pageable)
                 .map(produtoMapper::toDTO);
     }
-
+    @Transactional(readOnly = true)
     public ProdutoResponseDTO buscarProdutoPorId(Long id){
          Produto produto = produtoRepository.findById(id)
                 .orElseThrow(()-> new IdProdutoNotFoundException("Produto não encontrado."));
          return produtoMapper.toDTO(produto);
     }
     @Transactional
-    public ProdutoResponseDTO atualizarProduto(Long id, ProdutoUpdateDTO dto){
-        Categoria categoriaProduto = categoriaRepository.findById(dto.categoriaId())
-                .orElseThrow(() -> new IdCategoriaNotFoundException("Categoria não encontrada."));
+    public ProdutoResponseDTO atualizarProduto(Long id, ProdutoUpdateDTO dto) {
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(()-> new IdProdutoNotFoundException("Produto não encontrado."));
+                .orElseThrow(() -> new IdProdutoNotFoundException("Produto não encontrado."));
+        Categoria categoriaProduto = null;
+        if (dto.categoriaId() != null) {
+            categoriaProduto = categoriaRepository.findById(dto.categoriaId())
+                    .orElseThrow(() -> new IdCategoriaNotFoundException("Categoria não encontrada."));
+        }
         produtoMapper.updateEntity(dto, produto, categoriaProduto);
         return produtoMapper.toDTO(produto);
-
     }
 //    @Transactional
 //    public void deleteProduto(Long id){
