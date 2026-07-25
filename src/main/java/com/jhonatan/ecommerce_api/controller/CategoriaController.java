@@ -11,19 +11,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/categorias")
 public class CategoriaController {
+
     private final CategoriaService categoriaService;
     public CategoriaController(CategoriaService categoriaService) {
         this.categoriaService = categoriaService;
     }
 
-    @GetMapping
-    public ResponseEntity<Page<CategoriaResponseDTO>> listCategories( @PageableDefault(size = 10, sort = "nome") Pageable pageable){
 
+    @GetMapping
+    public ResponseEntity<Page<CategoriaResponseDTO>> listCategories(
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable){
         return ResponseEntity.ok(categoriaService.listarCategorias(pageable));
     }
 
@@ -46,11 +47,17 @@ public class CategoriaController {
         return ResponseEntity.ok(categoria);
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-//        categoriaService.deleteCategoria(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activate(@PathVariable Long id) {
+        categoriaService.activate(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivate(@PathVariable Long id) {
+        categoriaService.deactivate(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }

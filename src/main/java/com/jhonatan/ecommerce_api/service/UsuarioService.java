@@ -20,13 +20,11 @@ import org.springframework.stereotype.Service;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
-    private final PasswordEncoder passwordEncoder;
     private final ContaConfirmacaoService contaConfirmacaoService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder, ContaConfirmacaoService contaConfirmacaoService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, ContaConfirmacaoService contaConfirmacaoService) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
-        this.passwordEncoder = passwordEncoder;
         this.contaConfirmacaoService = contaConfirmacaoService;
     }
 

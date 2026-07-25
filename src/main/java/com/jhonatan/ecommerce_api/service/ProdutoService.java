@@ -39,12 +39,13 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public Page<ProdutoResponseDTO> listarProdutos(Pageable pageable) {
-        return produtoRepository.findAll(pageable)
+        return produtoRepository.findByAtivoTrue(pageable)
                 .map(produtoMapper::toDTO);
     }
+
     @Transactional(readOnly = true)
     public ProdutoResponseDTO buscarProdutoPorId(Long id){
-         Produto produto = produtoRepository.findById(id)
+         Produto produto = produtoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(()-> new IdProdutoNotFoundException("Produto não encontrado."));
          return produtoMapper.toDTO(produto);
     }
@@ -60,6 +61,22 @@ public class ProdutoService {
         produtoMapper.updateEntity(dto, produto, categoriaProduto);
         return produtoMapper.toDTO(produto);
     }
+
+    @Transactional
+    public void activate(Long id) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new IdProdutoNotFoundException("Produto não encontrado."));
+        produto.ativar();
+    }
+
+    @Transactional
+    public void deactivate(Long id) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new IdProdutoNotFoundException("Produto não encontrado."));
+        produto.inativar();
+    }
+
+
 //    @Transactional
 //    public void deleteProduto(Long id){
 //        produtoRepository.deleteById(id);

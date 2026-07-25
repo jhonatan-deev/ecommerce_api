@@ -33,6 +33,9 @@ public class Produto {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
+    @Column(nullable = false)
+    private boolean ativo;
+
     // Controle de concorrência: evita que dois pedidos vendam a mesma
     // unidade em estoque ao mesmo tempo. O Hibernate cuida sozinho.
     @Version
@@ -49,6 +52,15 @@ public class Produto {
         this.preco = preco;
         this.estoque = estoque;
         this.categoria = categoria;
+        this.ativo = true;
+    }
+
+    public void ativar() {
+        this.ativo = true;
+    }
+
+    public void inativar() {
+        this.ativo = false;
     }
 
 

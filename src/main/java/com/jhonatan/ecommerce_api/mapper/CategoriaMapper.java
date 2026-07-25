@@ -19,7 +19,8 @@ public class CategoriaMapper {
         return new CategoriaResponseDTO(
                 categoria.getId(),
                 categoria.getNome(),
-                categoria.getDescricao()
+                categoria.getDescricao(),
+                categoria.isAtivo()
         );
     }
 

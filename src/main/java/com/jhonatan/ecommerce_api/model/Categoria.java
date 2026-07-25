@@ -28,11 +28,22 @@ public class Categoria {
     @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY)
     private List<Produto> produtos = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean ativo;
 
     public Categoria(String nome, String descricao) {
         validarNome(nome);
         this.nome = nome;
         this.descricao = descricao;
+        this.ativo = true;
+    }
+
+    public void ativar() {
+        this.ativo = true;
+    }
+
+    public void inativar() {
+        this.ativo = false;
     }
 
     public void alterarNome(String novoNome) {

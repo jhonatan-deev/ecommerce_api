@@ -54,13 +54,17 @@ public class SecurityConfigurations {
                         // 4. ADMIN ou VENDEDOR — gestão de catálogo
                         .requestMatchers(HttpMethod.POST, "/api/v1/produtos").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/produtos/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/produtos/*/activate").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/produtos/*/deactivate").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/categorias").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/categorias/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/categorias/*/activate").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/categorias/*/deactivate").hasAnyRole("ADMIN", "VENDEDOR")
 
                         // 5. ADMIN ou VENDEDOR — gestão de pedido
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos").hasAnyRole("ADMIN", "VENDEDOR")
 
-                        // 6. Fallback — qualquer coisa não listada acima exige login
+                        // 6. Qualquer coisa não listada acima exige login
                         .anyRequest().authenticated()
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
