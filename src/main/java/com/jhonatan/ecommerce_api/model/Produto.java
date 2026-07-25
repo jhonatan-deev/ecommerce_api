@@ -33,6 +33,11 @@ public class Produto {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
+    // Controle de concorrência: evita que dois pedidos vendam a mesma
+    // unidade em estoque ao mesmo tempo. O Hibernate cuida sozinho.
+    @Version
+    private Long version;
+
     public Produto(String nome, String descricao, BigDecimal preco, Integer estoque, Categoria categoria) {
         validarNome(nome);
         validarPreco(preco);
