@@ -36,22 +36,17 @@ public class RefreshTokenService {
     public TokenResponseDTO refresh(String refreshTokenValue) {
         RefreshToken tokenAtual = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new TokenInvalidoException("Refresh token inválido ou inexistente."));
-
         if (tokenAtual.isRevogado()) {
             throw new TokenInvalidoException("Refresh token revogado. Faça login novamente.");
         }
         if (tokenAtual.isExpired()) {
             throw new TokenInvalidoException("Refresh token expirado. Faça login novamente.");
         }
-
         Usuario usuario = tokenAtual.getUsuario();
-
         tokenAtual.revogar();
         refreshTokenRepository.save(tokenAtual);
-
         RefreshToken novoRefreshToken = refreshTokenRepository.save(new RefreshToken(usuario));
         String novoAccessToken = jwtService.generateToken(usuario);
-
         return new TokenResponseDTO(novoAccessToken, novoRefreshToken.getToken());
     }
 }

@@ -7,12 +7,11 @@ import com.jhonatan.ecommerce_api.exception.IdCategoriaNotFoundException;
 import com.jhonatan.ecommerce_api.mapper.CategoriaMapper;
 import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.repository.CategoriaRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 public class CategoriaService {
@@ -25,12 +24,14 @@ public class CategoriaService {
         this.mapper = mapper;
     }
 
+    @Transactional(readOnly = true)
     public Page<CategoriaResponseDTO> listarCategorias(Pageable pageable) {
-        return categoriaRepository.findAll(pageable).map(mapper::toDTO);
+        return categoriaRepository.findByAtivoTrue(pageable).map(mapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public CategoriaResponseDTO buscarCategoriaPorId(Long id) {
-        Categoria categoria = categoriaRepository.findById(id)
+        Categoria categoria = categoriaRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new IdCategoriaNotFoundException("Categoria não encontrada."));
         return mapper.toDTO(categoria);
     }
@@ -58,11 +59,19 @@ public class CategoriaService {
         return mapper.toDTO(categoria);
     }
 
-//    public void deleteCategoria(Long id){
-//        Categoria categoria = categoriaRepository.findById(id)
-//                .orElseThrow(()-> new IdCategoriaNotFoundException("Categoria não encontrada."));
-//        categoriaRepository.delete(categoria);
-//    }
+    @Transactional
+    public void deactivate(Long id){
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new IdCategoriaNotFoundException("Categoria não encontrada!"));
+        categoria.inativar();
+    }
+
+   @Transactional
+    public void activate(Long id) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new IdCategoriaNotFoundException("Categoria não encontrada!"));
+        categoria.ativar();
+    }
 
 
 }
