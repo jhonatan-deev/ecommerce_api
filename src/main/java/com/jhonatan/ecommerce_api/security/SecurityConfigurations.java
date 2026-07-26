@@ -39,7 +39,10 @@ public class SecurityConfigurations {
                                 "/api/v1/auth/esqueci-senha",
                                 "/api/v1/auth/confirmar-conta",
                                 "/api/v1/auth/reenviar-confirmacao",
-                                "/api/v1/auth/refresh").permitAll()
+                                "/api/v1/auth/refresh",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html").permitAll()
 
                         // 2. Público — vitrine (catálogo)
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos", "/api/v1/produtos/**").permitAll()
