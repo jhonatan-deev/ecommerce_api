@@ -21,7 +21,8 @@ public class ProdutoMapper {
                 dto.descricao(),
                 dto.preco(),
                 dto.estoque(),
-                categoria
+                categoria,
+                dto.imagemUrl()
         );
     }
 
@@ -41,6 +42,7 @@ public class ProdutoMapper {
         entity.alterarNome(dto.nome());
         entity.alterarDescricao(dto.descricao());
         entity.alterarPreco(dto.preco());
+        entity.alterarImagemUrl(dto.imagemUrl());
 
         if (dto.quantidadeEntrada() != null) {
             entity.entradaEstoque(dto.quantidadeEntrada());
