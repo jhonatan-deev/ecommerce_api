@@ -36,16 +36,20 @@ public class Produto {
     @Column(nullable = false)
     private boolean ativo;
 
+    @Column(name = "imagem_url", length = 1000)
+    private String imagemUrl;
+
     // Controle de concorrência: evita que dois pedidos vendam a mesma
     // unidade em estoque ao mesmo tempo. O Hibernate cuida sozinho.
     @Version
     private Long version;
 
-    public Produto(String nome, String descricao, BigDecimal preco, Integer estoque, Categoria categoria) {
+    public Produto(String nome, String descricao, BigDecimal preco, Integer estoque, Categoria categoria, String imagemUrl) {
         validarNome(nome);
         validarPreco(preco);
         validarEstoqueInicial(estoque);
         validarCategoria(categoria);
+        validarImagemUrl(imagemUrl);
 
         this.nome = nome;
         this.descricao = descricao;
@@ -53,6 +57,7 @@ public class Produto {
         this.estoque = estoque;
         this.categoria = categoria;
         this.ativo = true;
+        this.imagemUrl = imagemUrl;
     }
 
     public void ativar() {
@@ -129,6 +134,17 @@ public class Produto {
     private void validarQuantidadePositiva(int quantidade, String operacao) {
         if (quantidade <= 0) {
             throw new IllegalArgumentException(operacao + " deve ser maior que zero.");
+        }
+    }
+
+    public void alterarImagemUrl(String imagemUrl) {
+        validarImagemUrl(imagemUrl);
+        this.imagemUrl = imagemUrl;
+    }
+
+    private void validarImagemUrl(String imagemUrl) {
+        if (imagemUrl != null && !imagemUrl.isBlank() && !imagemUrl.matches("^https?://.+")) {
+            throw new IllegalArgumentException("URL da imagem deve começar com http:// ou https://");
         }
     }
 }

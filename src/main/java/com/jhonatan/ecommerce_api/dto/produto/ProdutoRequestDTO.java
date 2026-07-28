@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
 
@@ -19,6 +20,8 @@ public record ProdutoRequestDTO(
         @PositiveOrZero
         Integer estoque,
         @NotNull
-        Long categoriaId
+        Long categoriaId,
+        @URL
+        String imagemUrl
 ) {
 }

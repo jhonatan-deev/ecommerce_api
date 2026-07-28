@@ -63,8 +63,8 @@ class PedidoServiceTest {
         usuario = new Usuario("Cliente Teste", "cliente@teste.com", "senha123", TipoUsuario.CLIENTE);
 
         Categoria categoria = new Categoria("Eletrônicos", "Produtos eletrônicos em geral");
-        produto = new Produto("Mouse Gamer", "Mouse com sensor óptico",
-                new BigDecimal("150.00"), 10, categoria);
+        produto = new Produto("Nome", "Descrição",
+                new BigDecimal("150.00"), 10, categoria, null);
     }
 
     @Test
