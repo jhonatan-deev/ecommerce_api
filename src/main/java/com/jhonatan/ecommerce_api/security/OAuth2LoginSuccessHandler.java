@@ -1,8 +1,10 @@
 package com.jhonatan.ecommerce_api.security;
 
 import com.jhonatan.ecommerce_api.enums.TipoUsuario;
+import com.jhonatan.ecommerce_api.model.RefreshToken;
 import com.jhonatan.ecommerce_api.model.Usuario;
 import com.jhonatan.ecommerce_api.repository.UsuarioRepository;
+import com.jhonatan.ecommerce_api.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,15 +32,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final PasswordEncoder passwordEncoder;
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final RestClient restClient = RestClient.create();
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    public OAuth2LoginSuccessHandler(UsuarioRepository usuarioRepository, JwtService jwtService, PasswordEncoder passwordEncoder, OAuth2AuthorizedClientService authorizedClientService) {
+    public OAuth2LoginSuccessHandler(UsuarioRepository usuarioRepository, JwtService jwtService, PasswordEncoder passwordEncoder, OAuth2AuthorizedClientService authorizedClientService, RefreshTokenService refreshTokenService) {
         this.usuarioRepository = usuarioRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.authorizedClientService = authorizedClientService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -52,7 +56,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String login = oauthUser.getAttribute("login");
 
         if (email == null) {
-            email = buscarEmailPrimarioNoGithub(oauthToken);
+            String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+            if ("github".equals(registrationId)) {
+                email = buscarEmailPrimarioNoGithub(oauthToken);
+            } else {
+                throw new IllegalStateException(
+                        "Não foi possível obter um e-mail do provedor " + registrationId + " para autenticação.");
+            }
         }
 
         if (nome == null || nome.isBlank()) {
@@ -65,7 +75,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(emailFinal).orElseGet(() -> criarNovoUsuario(nomeFinal, emailFinal));
         String jwt = jwtService.generateToken(usuario);
 
-        String redirectUrl = frontendUrl + "/oauth-callback?token=" + jwt;
+        RefreshToken refreshToken = refreshTokenService.gerarNovoToken(usuario);
+
+        String redirectUrl = frontendUrl
+                + "/oauth-callback?token="
+                + jwt
+                + "&refreshToken="
+                + refreshToken.getToken();
+
         response.sendRedirect(redirectUrl);
     }
 
@@ -84,9 +101,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(oauthToken.getAuthorizedClientRegistrationId(), oauthToken.getName());
         OAuth2AccessToken accessToken = client.getAccessToken();
 
-        List<Map<String, Object>> emails = restClient.get().uri("https://api.github.com/user/emails").
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getTokenValue())
-                .retrieve().body(List.class);
+        List<Map<String, Object>> emails = restClient.get().uri("https://api.github.com/user/emails")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getTokenValue())
+                .retrieve()
+                .body(List.class);
+
 
         return emails.stream().filter(e -> Boolean.TRUE.equals(e.get("primary")))
                 .map(e -> (String) e.get("email")).findFirst()
