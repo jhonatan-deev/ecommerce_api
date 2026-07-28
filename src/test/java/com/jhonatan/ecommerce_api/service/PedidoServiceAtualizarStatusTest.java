@@ -70,8 +70,8 @@ class PedidoServiceAtualizarStatusTest {
         ReflectionTestUtils.setField(outroUsuario, "id", 3L);
 
         Categoria categoria = new Categoria("Eletrônicos", "Produtos eletrônicos em geral");
-        produto = new Produto("Mouse Gamer", "Mouse com sensor óptico",
-                new BigDecimal("150.00"), 8, categoria); // já com 2 unidades "vendidas" (10 - 2)
+        produto = new Produto("Nome", "Descrição",
+                new BigDecimal("150.00"), 10, categoria, null);
 
         pedido = new Pedido(dono);
         pedido.adicionarItem(new ItemPedido(produto, 2, produto.getPreco()));
