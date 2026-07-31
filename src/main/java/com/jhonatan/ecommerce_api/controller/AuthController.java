@@ -48,13 +48,11 @@ public class AuthController {
     }
 
 
-
     @GetMapping("/confirmar-conta")
     public ResponseEntity<String> efetuarConta(@RequestParam String token) {
         contaConfirmacaoService.confirmarConta(token);
         return ResponseEntity.ok("Conta confirmada com sucesso! Você já pode fazer login.");
     }
-
 
 
     @PostMapping("/esqueci-senha")
