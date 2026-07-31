@@ -34,7 +34,8 @@ public class ProdutoMapper {
                 produto.getPreco(),
                 produto.getEstoque(),
                 produto.isAtivo(),
-                categoriaMapper.toDTO(produto.getCategoria())
+                categoriaMapper.toDTO(produto.getCategoria()),
+                produto.getImagemUrl()
         );
     }
 

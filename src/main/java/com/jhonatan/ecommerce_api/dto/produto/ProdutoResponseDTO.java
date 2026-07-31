@@ -11,6 +11,7 @@ public record ProdutoResponseDTO(
         BigDecimal preco,
         Integer estoque,
         Boolean ativo,
-        CategoriaResponseDTO categoria
+        CategoriaResponseDTO categoria,
+        String imagemUrl
 ) {
 }

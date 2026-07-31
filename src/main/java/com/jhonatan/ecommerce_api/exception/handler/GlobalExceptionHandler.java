@@ -83,7 +83,6 @@ public class GlobalExceptionHandler {
     // Última rede de segurança: captura qualquer exceção não tratada
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneralException(Exception ex) {
-        ex.printStackTrace(); // temporário, só pra diagnosticar agora
         ErrorResponseDTO error = new ErrorResponseDTO(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro interno do servidor",
