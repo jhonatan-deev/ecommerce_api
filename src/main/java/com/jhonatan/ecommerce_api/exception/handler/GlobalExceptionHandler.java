@@ -48,7 +48,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             PedidoStatusInvalidoException.class,
-            TokenInvalidoException.class
+            TokenInvalidoException.class,
+            CodigoInvalidoException.class,
+            SenhaInvalidaException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleBadRequestException(RuntimeException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
