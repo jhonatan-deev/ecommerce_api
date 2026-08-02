@@ -39,6 +39,12 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private boolean ativo;
 
+    @Column(nullable = false)
+    private boolean doisFatoresAtivo;
+
+    @Column(name = "dois_fatores_segredo")
+    private String doisFatoresSegredo;
+
     public Usuario(String nome, String email, String senha, TipoUsuario tipo) {
         validarNome(nome);
         validarEmail(email);
@@ -105,6 +111,24 @@ public class Usuario implements UserDetails {
         if (tipo == null) {
             throw new IllegalArgumentException("Tipo de usuário é obrigatório.");
         }
+    }
+
+    public void ativarDoisFatores(String segredo) {
+        this.doisFatoresSegredo = segredo;
+        this.doisFatoresAtivo = true;
+    }
+
+    public void desativarDoisFatores() {
+        this.doisFatoresSegredo = null;
+        this.doisFatoresAtivo = false;
+    }
+
+    public boolean isDoisFatoresAtivo() {
+        return doisFatoresAtivo;
+    }
+
+    public String getDoisFatoresSegredo() {
+        return doisFatoresSegredo;
     }
 
     @Override

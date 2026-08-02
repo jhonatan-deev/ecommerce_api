@@ -1,59 +1,63 @@
 package com.jhonatan.ecommerce_api.controller;
 
-import com.jhonatan.ecommerce_api.dto.login.LoginRequest;
-import com.jhonatan.ecommerce_api.dto.login.ReenviarConfirmacaoDTO;
 import com.jhonatan.ecommerce_api.dto.RefreshRequestDTO;
 import com.jhonatan.ecommerce_api.dto.TokenResponseDTO;
+import com.jhonatan.ecommerce_api.dto.dois_fatores.AtivarDoisFatoresDTO;
+import com.jhonatan.ecommerce_api.dto.dois_fatores.DesativarDoisFatoresDTO;
+import com.jhonatan.ecommerce_api.dto.dois_fatores.GerarDoisFatoresResponseDTO;
+import com.jhonatan.ecommerce_api.dto.dois_fatores.VerificarDoisFatoresDTO;
+import com.jhonatan.ecommerce_api.dto.login.LoginRequest;
+import com.jhonatan.ecommerce_api.dto.login.LoginResponseDTO;
+import com.jhonatan.ecommerce_api.dto.login.ReenviarConfirmacaoDTO;
 import com.jhonatan.ecommerce_api.dto.senha.NovaSenhaRequestDTO;
 import com.jhonatan.ecommerce_api.dto.senha.SolicitarRecuperacaoSenhaDTO;
-import com.jhonatan.ecommerce_api.model.RefreshToken;
 import com.jhonatan.ecommerce_api.model.Usuario;
 import com.jhonatan.ecommerce_api.security.JwtService;
 import com.jhonatan.ecommerce_api.service.ContaConfirmacaoService;
+import com.jhonatan.ecommerce_api.service.DoisFatoresService;
 import com.jhonatan.ecommerce_api.service.RefreshTokenService;
 import com.jhonatan.ecommerce_api.service.ResetaSenhaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-    private final JwtService tokenService;
     private final ContaConfirmacaoService contaConfirmacaoService;
     private final ResetaSenhaService resetaSenhaService;
     private final RefreshTokenService refreshTokenService;
+    private final DoisFatoresService doisFatoresService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService tokenService,
+    public AuthController(AuthenticationManager authenticationManager,
                           ContaConfirmacaoService contaConfirmacaoService, ResetaSenhaService resetaSenhaService,
-                          RefreshTokenService refreshTokenService) {
+                          RefreshTokenService refreshTokenService, DoisFatoresService doisFatoresService) {
         this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
         this.contaConfirmacaoService = contaConfirmacaoService;
         this.resetaSenhaService = resetaSenhaService;
         this.refreshTokenService = refreshTokenService;
+        this.doisFatoresService = doisFatoresService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> efetuarLogin(@RequestBody @Valid LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponseDTO> efetuarLogin(@RequestBody @Valid LoginRequest loginRequest) {
         var autenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.senha());
         var authentication = authenticationManager.authenticate(autenticationToken);
         var usuario = (Usuario) authentication.getPrincipal();
-        String accessToken = tokenService.generateToken(usuario);
-        RefreshToken refreshToken = refreshTokenService.gerarNovoToken(usuario);
-        return ResponseEntity.ok(new TokenResponseDTO(accessToken, refreshToken.getToken()));
+        return ResponseEntity.ok(doisFatoresService.finalizarLogin(usuario));
     }
 
-
     @GetMapping("/confirmar-conta")
-    public ResponseEntity<String> efetuarConta(@RequestParam String token) {
+    public ResponseEntity<String> confirmarConta(@RequestParam String token) {
         contaConfirmacaoService.confirmarConta(token);
         return ResponseEntity.ok("Conta confirmada com sucesso! Você já pode fazer login.");
     }
-
 
     @PostMapping("/esqueci-senha")
     public ResponseEntity<String> solicitarResetSenha(@RequestBody @Valid SolicitarRecuperacaoSenhaDTO dto) {
@@ -77,4 +81,29 @@ public class AuthController {
     public ResponseEntity<TokenResponseDTO> renovarToken(@RequestBody @Valid RefreshRequestDTO dto) {
         return ResponseEntity.ok(refreshTokenService.refresh(dto.refreshToken()));
     }
+
+    @PostMapping("/2fa/gerar")
+    public ResponseEntity<GerarDoisFatoresResponseDTO> gerarDoisFatores(@AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(doisFatoresService.iniciarAtivacao(usuario));
+    }
+
+    @PostMapping("/2fa/verificar")
+    public ResponseEntity<LoginResponseDTO> verificarDoisFatores(@RequestBody @Valid VerificarDoisFatoresDTO dto) {
+        return ResponseEntity.ok(doisFatoresService.verificarLogin(dto));
+    }
+
+    @PostMapping("/2fa/ativar")
+    public ResponseEntity<List<String>> ativarDoisFatores(@AuthenticationPrincipal Usuario usuario,
+                                                          @RequestBody @Valid AtivarDoisFatoresDTO dto) {
+        return ResponseEntity.ok(doisFatoresService.confirmarAtivacao(usuario, dto));
+    }
+
+    @PostMapping("/2fa/desativar")
+    public ResponseEntity<Void> desativarDoisFatores(@AuthenticationPrincipal Usuario usuario,
+                                                     @RequestBody @Valid DesativarDoisFatoresDTO dto) {
+        doisFatoresService.desativar(usuario, dto);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

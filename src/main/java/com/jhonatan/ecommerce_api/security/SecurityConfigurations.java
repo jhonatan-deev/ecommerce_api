@@ -38,6 +38,7 @@ public class SecurityConfigurations {
 
                         .requestMatchers(
                                 "/api/v1/auth/login",
+                                "/api/v1/auth/2fa/verificar",
                                 "/api/v1/auth/resetar-senha",
                                 "/api/v1/auth/esqueci-senha",
                                 "/api/v1/auth/confirmar-conta",
@@ -48,7 +49,7 @@ public class SecurityConfigurations {
                                 "/swagger-ui.html",
                                 "/oauth2/**",
                                 "/login/oauth2/**"
-                                ).permitAll()
+                        ).permitAll()
 
                         // 2. Público — vitrine (catálogo)
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos", "/api/v1/produtos/**").permitAll()
