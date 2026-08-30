@@ -54,6 +54,7 @@ public class SecurityConfigurations {
                         // 2. Público — vitrine (catálogo)
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos", "/api/v1/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias", "/api/v1/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/banners", "/api/v1/banners/**").permitAll()
 
                         // 3. Só ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").hasRole("ADMIN")
@@ -70,6 +71,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/categorias/**").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/categorias/*/activate").hasAnyRole("ADMIN", "VENDEDOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/categorias/*/deactivate").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/banners").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/banners/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/banners/*/activate").hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/banners/*/deactivate").hasAnyRole("ADMIN", "VENDEDOR")
 
                         // 5. ADMIN ou VENDEDOR — gestão de pedido
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos").hasAnyRole("ADMIN", "VENDEDOR")
