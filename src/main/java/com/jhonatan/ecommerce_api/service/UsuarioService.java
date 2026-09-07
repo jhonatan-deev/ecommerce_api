@@ -12,7 +12,6 @@ import com.jhonatan.ecommerce_api.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -29,7 +28,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+    public UsuarioResponseDTO create( UsuarioRequestDTO dto) {
         if (usuarioRepository.existsByEmail(dto.email())) {
             throw new EmailAlreadyExistsException("Email já está cadastrado!");
         }
