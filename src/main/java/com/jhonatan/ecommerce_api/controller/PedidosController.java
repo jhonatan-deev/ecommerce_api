@@ -60,4 +60,13 @@ public class PedidosController {
         PedidoResponseDTO pedido = pedidoService.atualizarStatus(idPedido, dto.novoStatus(), usuarioAutenticado);
         return ResponseEntity.ok(pedido);
     }
+
+    @PutMapping("/{idPedido}/pago")
+    public ResponseEntity<Void> atualizarPagamento(
+            @PathVariable Long idPedido) {
+
+        pedidoService.atualizarPagamento(idPedido);
+
+        return ResponseEntity.noContent().build();
+    }
 }

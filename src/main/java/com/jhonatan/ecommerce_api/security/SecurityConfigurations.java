@@ -55,6 +55,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos", "/api/v1/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias", "/api/v1/categorias/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/banners", "/api/v1/banners/**").permitAll()
+                        // 2. Público — callback interno do microsserviço de pagamentos
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/pedidos/*/pago").permitAll()
 
                         // 3. Só ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").hasRole("ADMIN")

@@ -1,5 +1,7 @@
 package com.jhonatan.ecommerce_api.service;
 
+import com.jhonatan.ecommerce_api.client.PagamentoClient;
+import com.jhonatan.ecommerce_api.dto.pagamento.PagamentoRequestFeignDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.ItemPedidoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.PedidoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.PedidoResponseDTO;
@@ -8,6 +10,7 @@ import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 import com.jhonatan.ecommerce_api.exception.IdProdutoNotFoundException;
 import com.jhonatan.ecommerce_api.exception.IdPedidoNotFoundException;
 import com.jhonatan.ecommerce_api.exception.RegraDeNegocioException;
+import com.jhonatan.ecommerce_api.mapper.PagamentoMapper;
 import com.jhonatan.ecommerce_api.mapper.PedidoMapper;
 import com.jhonatan.ecommerce_api.model.ItemPedido;
 import com.jhonatan.ecommerce_api.model.Pedido;
@@ -30,20 +33,24 @@ public class PedidoService {
     private final ProdutoRepository produtoRepository;
     private final PedidoMapper pedidoMapper;
     private final List<ValidadorCriacaoPedido> validadores;
+    private final PagamentoClient pagamentoClient;
+    private final PagamentoMapper pagamentoMapper;
 
     public PedidoService(PedidoRepository pedidoRepository, ProdutoRepository produtoRepository,
-                         PedidoMapper pedidoMapper, List<ValidadorCriacaoPedido> validadores) {
+                         PedidoMapper pedidoMapper, List<ValidadorCriacaoPedido> validadores, PagamentoClient pagamentoClient, PagamentoMapper pagamentoMapper) {
         this.pedidoRepository = pedidoRepository;
         this.produtoRepository = produtoRepository;
         this.pedidoMapper = pedidoMapper;
         this.validadores = validadores;
+        this.pagamentoClient = pagamentoClient;
+        this.pagamentoMapper = pagamentoMapper;
     }
 
     @Transactional
     public PedidoResponseDTO criarPedido(PedidoRequestDTO dadosPedido, Usuario usuarioAutenticado) {
         validadores.forEach(validador -> validador.validar(dadosPedido));
-
         Pedido pedido = new Pedido(usuarioAutenticado);
+        pedido = pedidoRepository.save(pedido); // <- gera o ID (IDENTITY faz insert imediato)
 
         for (ItemPedidoRequestDTO itemDto : dadosPedido.itensDoPedido()) {
             Produto produto = produtoRepository.findById(itemDto.produtoId())
@@ -55,7 +62,10 @@ public class PedidoService {
             pedido.adicionarItem(item);
         }
 
-        pedido = pedidoRepository.save(pedido);
+        pedido = pedidoRepository.save(pedido); // salva com os itens
+        PagamentoRequestFeignDTO pagamento = pagamentoMapper.toFeignDTO(dadosPedido, pedido);
+        pagamentoClient.criarPagamento(pagamento); // agora pedido.getId() não é mais null
+
         return pedidoMapper.toDTO(pedido);
     }
 
@@ -113,5 +123,15 @@ public class PedidoService {
             return pedidoRepository.findByUsuarioIdAndStatusPedido(idUsuario, status, pageable).map(pedidoMapper::toDTO);
         }
         return pedidoRepository.findByUsuarioId(idUsuario, pageable).map(pedidoMapper::toDTO);
+    }
+
+    @Transactional
+    public void atualizarPagamento(Long idPedido) {
+
+        Pedido pedido = pedidoRepository.findById(idPedido)
+                .orElseThrow(() ->
+                        new IdPedidoNotFoundException("Pedido não encontrado!"));
+
+        pedido.alterarStatus(StatusPedido.PAGO);
     }
 }
