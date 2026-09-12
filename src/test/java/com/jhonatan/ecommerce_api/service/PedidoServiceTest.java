@@ -1,10 +1,14 @@
 package com.jhonatan.ecommerce_api.service;
 
+import com.jhonatan.ecommerce_api.client.PagamentoClient;
+import com.jhonatan.ecommerce_api.dto.pagamento.PagamentoRequestDTO;
+import com.jhonatan.ecommerce_api.dto.pagamento.PagamentoRequestFeignDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.ItemPedidoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.PedidoRequestDTO;
 import com.jhonatan.ecommerce_api.dto.pedido.PedidoResponseDTO;
 import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 import com.jhonatan.ecommerce_api.exception.IdProdutoNotFoundException;
+import com.jhonatan.ecommerce_api.mapper.PagamentoMapper;
 import com.jhonatan.ecommerce_api.mapper.PedidoMapper;
 import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.model.Pedido;
@@ -28,6 +32,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoServiceTest {
@@ -47,6 +52,10 @@ class PedidoServiceTest {
     private PedidoMapper pedidoMapper;
     @Mock
     private ValidadorCriacaoPedido validador;
+    @Mock
+    private PagamentoClient pagamentoClient;
+    @Mock
+    private PagamentoMapper pagamentoMapper;
 
     private Usuario usuario;
     private Produto produto;
@@ -57,7 +66,9 @@ class PedidoServiceTest {
                 pedidoRepository,
                 produtoRepository,
                 pedidoMapper,
-                List.of(validador)
+                List.of(validador),
+                pagamentoClient,
+                pagamentoMapper
         );
 
         usuario = new Usuario("Cliente Teste", "cliente@teste.com", "senha123", TipoUsuario.CLIENTE);
@@ -71,15 +82,38 @@ class PedidoServiceTest {
     void deveCriarPedidoERetornarPedidoResponseDTOQuandoDadosForemValidos() {
         //ARRANGE
         ItemPedidoRequestDTO itemDto = new ItemPedidoRequestDTO(1L, 2);
-        PedidoRequestDTO requestDTO = new PedidoRequestDTO(List.of(itemDto));
+
+        PagamentoRequestDTO pagamentoRequestDTO = new PagamentoRequestDTO(
+                new BigDecimal("300.00"),
+                "Cliente Teste",
+                "1234567890123456",
+                "12/30",
+                1L
+        );
+
+        PedidoRequestDTO requestDTO = new PedidoRequestDTO(
+                List.of(itemDto),
+                pagamentoRequestDTO
+        );
 
         PedidoResponseDTO responseDTO = new PedidoResponseDTO(
                 1L, null, null, null, new BigDecimal("300.00"), null
         );
 
+        PagamentoRequestFeignDTO pagamentoDTO = new PagamentoRequestFeignDTO(
+                new BigDecimal("300.00"),
+                "Cliente Teste",
+                "1234567890123456",
+                "12/30",
+                1L,
+                1L
+        );
+
         BDDMockito.given(produtoRepository.findById(1L)).willReturn(Optional.of(produto));
         BDDMockito.given(pedidoRepository.save(any(Pedido.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
+        BDDMockito.given(pagamentoMapper.toFeignDTO(any(PedidoRequestDTO.class), any(Pedido.class)))
+                .willReturn(pagamentoDTO);
         BDDMockito.given(pedidoMapper.toDTO(any(Pedido.class))).willReturn(responseDTO);
 
         //ACT
@@ -92,14 +126,29 @@ class PedidoServiceTest {
 
         BDDMockito.then(validador).should().validar(requestDTO);
         BDDMockito.then(produtoRepository).should().save(produto);
-        BDDMockito.then(pedidoRepository).should().save(any(Pedido.class));
+        BDDMockito.then(pedidoRepository).should(times(2)).save(any(Pedido.class));
+        BDDMockito.then(pagamentoMapper).should()
+                .toFeignDTO(any(PedidoRequestDTO.class), any(Pedido.class));
+        BDDMockito.then(pagamentoClient).should().criarPagamento(pagamentoDTO);
     }
 
     @Test
     void deveLancarIdProdutoNotFoundExceptionQuandoProdutoNaoExistir() {
         //ARRANGE
         ItemPedidoRequestDTO itemDto = new ItemPedidoRequestDTO(999L, 1);
-        PedidoRequestDTO requestDTO = new PedidoRequestDTO(List.of(itemDto));
+
+        PagamentoRequestDTO pagamentoRequestDTO = new PagamentoRequestDTO(
+                new BigDecimal("150.00"),
+                "Cliente Teste",
+                "1234567890123456",
+                "12/30",
+                1L
+        );
+
+        PedidoRequestDTO requestDTO = new PedidoRequestDTO(
+                List.of(itemDto),
+                pagamentoRequestDTO
+        );
 
         BDDMockito.given(produtoRepository.findById(999L)).willReturn(Optional.empty());
 
@@ -111,14 +160,28 @@ class PedidoServiceTest {
         Assertions.assertTrue(exception.getMessage().contains("999"));
 
         BDDMockito.then(validador).should().validar(requestDTO);
-        BDDMockito.then(pedidoRepository).should(BDDMockito.never()).save(any());
+        BDDMockito.then(pedidoRepository).should().save(any(Pedido.class));
+        BDDMockito.then(produtoRepository).should(BDDMockito.never()).save(any());
+        BDDMockito.then(pagamentoClient).should(BDDMockito.never()).criarPagamento(any());
     }
 
     @Test
     void deveLancarIllegalStateExceptionQuandoEstoqueForInsuficiente() {
         //ARRANGE — produto tem 10 em estoque, pedido pede 999
         ItemPedidoRequestDTO itemDto = new ItemPedidoRequestDTO(1L, 999);
-        PedidoRequestDTO requestDTO = new PedidoRequestDTO(List.of(itemDto));
+
+        PagamentoRequestDTO pagamentoRequestDTO = new PagamentoRequestDTO(
+                new BigDecimal("150.00"),
+                "Cliente Teste",
+                "1234567890123456",
+                "12/30",
+                1L
+        );
+
+        PedidoRequestDTO requestDTO = new PedidoRequestDTO(
+                List.of(itemDto),
+                pagamentoRequestDTO
+        );
 
         BDDMockito.given(produtoRepository.findById(1L)).willReturn(Optional.of(produto));
 
@@ -130,6 +193,9 @@ class PedidoServiceTest {
         Assertions.assertTrue(exception.getMessage().contains("Estoque insuficiente"));
         Assertions.assertEquals(10, produto.getEstoque()); // não deve ter mudado
 
-        BDDMockito.then(pedidoRepository).should(BDDMockito.never()).save(any());
+        BDDMockito.then(validador).should().validar(requestDTO);
+        BDDMockito.then(pedidoRepository).should().save(any(Pedido.class));
+        BDDMockito.then(produtoRepository).should(BDDMockito.never()).save(any());
+        BDDMockito.then(pagamentoClient).should(BDDMockito.never()).criarPagamento(any());
     }
 }

@@ -1,11 +1,13 @@
 package com.jhonatan.ecommerce_api.service;
 
+import com.jhonatan.ecommerce_api.client.PagamentoClient;
 import com.jhonatan.ecommerce_api.dto.pedido.PedidoResponseDTO;
 import com.jhonatan.ecommerce_api.enums.StatusPedido;
 import com.jhonatan.ecommerce_api.enums.TipoUsuario;
 import com.jhonatan.ecommerce_api.exception.IdPedidoNotFoundException;
 import com.jhonatan.ecommerce_api.exception.PedidoStatusInvalidoException;
 import com.jhonatan.ecommerce_api.exception.RegraDeNegocioException;
+import com.jhonatan.ecommerce_api.mapper.PagamentoMapper;
 import com.jhonatan.ecommerce_api.mapper.PedidoMapper;
 import com.jhonatan.ecommerce_api.model.Categoria;
 import com.jhonatan.ecommerce_api.model.ItemPedido;
@@ -45,6 +47,10 @@ class PedidoServiceAtualizarStatusTest {
     private PedidoMapper pedidoMapper;
     @Mock
     private ValidadorCriacaoPedido validador;
+    @Mock
+    private PagamentoClient pagamentoClient;
+    @Mock
+    private PagamentoMapper pagamentoMapper;
 
     private Usuario dono;
     private Usuario admin;
@@ -58,7 +64,9 @@ class PedidoServiceAtualizarStatusTest {
                 pedidoRepository,
                 produtoRepository,
                 pedidoMapper,
-                List.of(validador)
+                List.of(validador),
+                pagamentoClient,
+                pagamentoMapper
         );
 
         dono = new Usuario("Cliente Dono", "dono@teste.com", "senha123", TipoUsuario.CLIENTE);
@@ -71,7 +79,7 @@ class PedidoServiceAtualizarStatusTest {
 
         Categoria categoria = new Categoria("Eletrônicos", "Produtos eletrônicos em geral");
         produto = new Produto("Nome", "Descrição",
-                new BigDecimal("150.00"), 10, categoria, null);
+                new BigDecimal("150.00"), 8, categoria, null);
 
         pedido = new Pedido(dono);
         pedido.adicionarItem(new ItemPedido(produto, 2, produto.getPreco()));
@@ -83,15 +91,15 @@ class PedidoServiceAtualizarStatusTest {
         //ARRANGE
         BDDMockito.given(pedidoRepository.findById(1L)).willReturn(Optional.of(pedido));
         BDDMockito.given(pedidoMapper.toDTO(pedido)).willReturn(
-                new PedidoResponseDTO(1L, null, null, StatusPedido.AGUARDANDO_PAGAMENTO, null, null)
+                new PedidoResponseDTO(1L, null, null, StatusPedido.PAGO, null, null)
         );
 
         //ACT
-        PedidoResponseDTO resultado = pedidoService.atualizarStatus(1L, StatusPedido.AGUARDANDO_PAGAMENTO, admin);
+        PedidoResponseDTO resultado = pedidoService.atualizarStatus(1L, StatusPedido.PAGO, admin);
 
         //ASSERT
-        Assertions.assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, resultado.statusDePagamento());
-        Assertions.assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, pedido.getStatusPedido());
+        Assertions.assertEquals(StatusPedido.PAGO, resultado.statusDePagamento());
+        Assertions.assertEquals(StatusPedido.PAGO, pedido.getStatusPedido());
     }
 
     @Test
@@ -103,7 +111,7 @@ class PedidoServiceAtualizarStatusTest {
         );
 
         //ACT
-        pedidoService.atualizarStatus(1L, StatusPedido.ENTREGUE, dono);
+        pedidoService.atualizarStatus(1L, StatusPedido.PAGO, dono);
 
         //ASSERT
         Assertions.assertEquals(StatusPedido.CANCELADO, pedido.getStatusPedido());
@@ -130,11 +138,11 @@ class PedidoServiceAtualizarStatusTest {
         //ARRANGE
         BDDMockito.given(pedidoRepository.findById(1L)).willReturn(Optional.of(pedido));
         BDDMockito.given(pedidoMapper.toDTO(pedido)).willReturn(
-                new PedidoResponseDTO(1L, null, null, StatusPedido.AGUARDANDO_PAGAMENTO, null, null)
+                new PedidoResponseDTO(1L, null, null, StatusPedido.PAGO, null, null)
         );
 
         //ACT
-        pedidoService.atualizarStatus(1L, StatusPedido.AGUARDANDO_PAGAMENTO, admin);
+        pedidoService.atualizarStatus(1L, StatusPedido.PAGO, admin);
 
         //ASSERT
         Assertions.assertEquals(8, produto.getEstoque()); // não deve ter mudado
