@@ -10,7 +10,7 @@ public class PagamentoMapper {
 
     public PagamentoRequestFeignDTO toFeignDTO(PedidoRequestDTO pedidoRequest, Pedido pedido) {
         return new PagamentoRequestFeignDTO(
-                pedidoRequest.pagamento().valor(),
+                pedido.getValorTotalPedido(),
                 pedidoRequest.pagamento().nome(),
                 pedidoRequest.pagamento().numero(),
                 pedidoRequest.pagamento().expiracao(),
