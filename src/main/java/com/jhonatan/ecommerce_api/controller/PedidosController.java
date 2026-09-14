@@ -6,7 +6,10 @@ import com.jhonatan.ecommerce_api.dto.pedido.PedidoResponseDTO;
 import com.jhonatan.ecommerce_api.enums.StatusPedido;
 import com.jhonatan.ecommerce_api.model.Usuario;
 import com.jhonatan.ecommerce_api.service.PedidoService;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/pedidos")
 public class PedidosController {
@@ -62,11 +67,19 @@ public class PedidosController {
     }
 
     @PutMapping("/{idPedido}/pago")
-    public ResponseEntity<Void> atualizarPagamento(
-            @PathVariable Long idPedido) {
-
+    @CircuitBreaker(name = "atualizarPagamento", fallbackMethod = "fallback")
+    public ResponseEntity<Void> atualizarPagamento(@PathVariable Long idPedido) {
         pedidoService.atualizarPagamento(idPedido);
-
         return ResponseEntity.noContent().build();
     }
+
+    public ResponseEntity<Void> fallback(Long idPedido, Throwable t) {
+        if (t instanceof CallNotPermittedException) {
+            log.warn("Circuito aberto, chamada bloqueada preventivamente para pedido {}", idPedido);
+        } else {
+            log.error("Falha ao atualizar pagamento do pedido {}: {}", idPedido, t.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+    }
+
 }

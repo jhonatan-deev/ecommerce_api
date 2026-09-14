@@ -127,11 +127,8 @@ public class PedidoService {
 
     @Transactional
     public void atualizarPagamento(Long idPedido) {
-
         Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() ->
-                        new IdPedidoNotFoundException("Pedido não encontrado!"));
-
+                .orElseThrow(() -> new IdPedidoNotFoundException("Pedido não encontrado!"));
         pedido.alterarStatus(StatusPedido.PAGO);
     }
 }
